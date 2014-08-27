@@ -120,6 +120,9 @@ public class ResumeScreen implements Screen {
 				}
 				
 				dialogueBox.updateDisplay("You have uploaded \"resume.docx\". We are now checking your changes.");
+				
+				//TODO: Insert code for checking here
+				
 				return true;
 			}
 		});
