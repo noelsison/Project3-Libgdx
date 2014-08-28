@@ -92,9 +92,10 @@ public class ResumeScreen implements Screen {
 				try {
 					Gdx.app.log("ResumeScreen", "Opening Word Processor...");
 					System.out.println("Opening Word Processor...");
+					String file = "D:\\workspace\\Project3-Libgdx\\core\\docx\\resume_only.docx";
 					Runtime rt = Runtime.getRuntime();
 					Process p = rt
-							.exec("C:\\Program Files (x86)\\LibreOffice 4\\program\\swriter.exe");
+							.exec("C:\\Program Files (x86)\\LibreOffice 4\\program\\swriter.exe "+file);
 					Gdx.app.log("ResumeScreen", "Opened Word Proccessor.");
 
 					dialogueBox
