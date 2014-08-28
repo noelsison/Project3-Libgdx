@@ -2,7 +2,6 @@ package com.project3.screens;
 
 import java.awt.FileDialog;
 import java.io.IOException;
-import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -25,8 +24,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Window.WindowStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.project3.actors.DialogueBox;
+import com.project3.actors.ScoreWindow;
+import com.project3.utils.poi.ApachePOIChecker;
 
 public class ResumeScreen implements Screen {
 
@@ -37,6 +39,7 @@ public class ResumeScreen implements Screen {
 	private TextButton uploadBtn;
 	private DialogueBox dialogueBox;
 	private ScrollPane scrollPane;
+	private ScoreWindow scoreWindow;
 
 	private Label[] instructionLabel;
 	private Label activityLabel;
@@ -45,18 +48,21 @@ public class ResumeScreen implements Screen {
 	private BitmapFont font18;
 	private BitmapFont font14;
 	private BitmapFont font12;
+	private BitmapFont font11;
 	private Skin dialogueSkin;
+	private Skin windowSkin;
 
 	private Image resumeImage;
 	private Image host;
 
 	private String[] introText = {
 			"One way of effectively promoting one's skills, experience and accomplishments is through a well presented résumé. Let's see if you can help make Ms. Martin's résumé standout by following the editing instructions provided.",
-			"Refer to the side bar for instructions on how to start this activity.\nGood luck!!!" };
+			"Refer to the side bar for instructions for further instructions.\n\nGOOD LUCK!!!" };
 
 	private final String[] instructionText = {
-			"1. Click the \"Download\" button below to start editing the résumé.",
-			"2. After saving the resume using the LibreOffice software, click the \"Upload\" button to submit your work." };
+			"1. Click the \"Download Résumé\" button below to start editing the résumé.",
+			"2. After saving the resume using the LibreOffice software, click the \"Upload Résumé\" button to submit your work." };
+	private Skin tableSkin;
 
 	public ResumeScreen() {
 		stage = new Stage();
@@ -90,9 +96,10 @@ public class ResumeScreen implements Screen {
 					Process p = rt
 							.exec("C:\\Program Files (x86)\\LibreOffice 4\\program\\swriter.exe");
 					Gdx.app.log("ResumeScreen", "Opened Word Proccessor.");
-					
-					dialogueBox.updateDisplay("Downloaded \"resume.docx\". You can now begin editing.");
-					
+
+					dialogueBox
+							.updateDisplay("Downloaded \"resume.docx\". You can now begin editing.");
+
 				} catch (IOException e) {
 					Gdx.app.error("ResumeScreen",
 							"Cannot open word processor.", e);
@@ -114,15 +121,19 @@ public class ResumeScreen implements Screen {
 				String fileChosen = chooser.getDirectory() + chooser.getFile();
 				if (chooser.getFile() != null) {
 					Gdx.app.log("ResumeScreen", "File chosen: " + fileChosen);
-					dialogueBox.setText("File chosen: " + fileChosen);
 				} else {
 					Gdx.app.log("ResumeScreen", "File choosing cancelled.");
 				}
-				
-				dialogueBox.updateDisplay("You have uploaded \"resume.docx\". We are now checking your changes.");
-				
-				//TODO: Insert code for checking here
-				
+				dialogueBox
+						.updateDisplay("You have uploaded \"resume.docx\". We are now checking your changes.");
+				initWindow(fileChosen);
+				scrollPane.setVisible(false);
+				dialogueBox
+				.updateDisplay(scoreWindow.getMessage());
+
+				// scoreWindow.setVisible(true);
+				// TODO: Insert code for checking here
+
 				return true;
 			}
 		});
@@ -159,13 +170,16 @@ public class ResumeScreen implements Screen {
 		stage.addActor(scrollPane);
 		stage.addActor(dialogueBox);
 		stage.addActor(host);
+//		stage.addActor(scoreWindow);
 		// stage.addActor(okBtn);
 
 		// Set UI actor's position
 		scrollPane.setBounds(35, 120, 720, 550);
 		dialogueBox.setBounds(35, 10, 720, 100);
+//		scoreWindow.setBounds(100, 100, 740, 500);
 		host.setPosition(750, 0);
 		dialogueBox.setScreen(this);
+//		scoreWindow.setVisible(true);
 	}
 
 	private NinePatch getNinePatch(String fname) {
@@ -195,10 +209,28 @@ public class ResumeScreen implements Screen {
 
 		dialogueBox = new DialogueBox("", tfstyle);
 		dialogueBox.setDisabled(true);
-		
+
 		dialogueBox.addText(introText[0]);
 		dialogueBox.addText(introText[1]);
 		dialogueBox.updateDisplay();
+	}
+
+	private void initWindow(String fileChosen) {
+		windowSkin = new Skin();
+		windowSkin.add("bg",
+				new Texture(Gdx.files.internal("ui/scorewindowbg.png")));
+		windowSkin.add("font", font14);
+		WindowStyle wstyle = new WindowStyle();
+		wstyle.background = windowSkin.getDrawable("bg");
+		wstyle.titleFont = font18;
+		wstyle.titleFontColor = Color.WHITE;
+
+		ApachePOIChecker.checkDocument(fileChosen);
+		scoreWindow = new ScoreWindow("", wstyle, skin, font11, font14, font18,
+				ApachePOIChecker.getResults());
+		stage.addActor(scoreWindow);
+		scoreWindow.setBounds(36, 175, 710, 500);
+		scoreWindow.setVisible(true);
 	}
 
 	private void initSideBar() {
@@ -232,6 +264,7 @@ public class ResumeScreen implements Screen {
 		font18 = generator.generateFont(18);
 		font14 = generator.generateFont(14);
 		font12 = generator.generateFont(12);
+		font11 = generator.generateFont(11);
 		generator.dispose();
 	}
 
@@ -276,6 +309,7 @@ public class ResumeScreen implements Screen {
 		stage.dispose();
 		skin.dispose();
 		dialogueSkin.dispose();
+		// windowSkin.dispose();
 	}
 
 }
